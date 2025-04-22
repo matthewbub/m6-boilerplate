@@ -5,7 +5,7 @@ Follow these steps to get started with m6-boilerplate:
 ## Clone the repository
 
 ```bash
-git clone https://github.com/username/m6-boilerplate.git my-project
+git clone https://github.com/matthewbub/m6-boilerplate.git my-project
 ```
 
 ## Navigate to the project directory
@@ -42,6 +42,7 @@ Create a `.env.local` file in the root of your project and add the following var
 NEXT_PUBLIC_CLERK_PUBLISHABLE_KEY=
 CLERK_SECRET_KEY=
 
+# Leave these as-is
 NEXT_PUBLIC_CLERK_SIGN_IN_URL=/sign-in
 NEXT_PUBLIC_CLERK_SIGN_IN_FALLBACK_REDIRECT_URL=/
 NEXT_PUBLIC_CLERK_SIGN_UP_FALLBACK_REDIRECT_URL=/
@@ -54,6 +55,22 @@ Also an `.env` file (Sorry, Prisma is picky - it's easier this way imo)
 
 ```env
 DATABASE_URL=
+```
+
+## Configure the prisma.schema
+
+...
+
+Then run
+
+```bash
+npx prisma migrate dev --name init
+```
+
+Then run
+
+```bash
+npx prisma generate
 ```
 
 ## Run the development server
