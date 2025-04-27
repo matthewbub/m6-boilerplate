@@ -2,6 +2,7 @@
 import OpenAI from "openai";
 import { NextResponse } from "next/server";
 import { auth } from "@clerk/nextjs/server";
+import { THINKING } from "../anthropic/route";
 
 interface ChunkSequence {
   type: string;
@@ -40,8 +41,7 @@ export async function POST(req: Request) {
 
   const body = await req.json();
   const prompt = body.prompt;
-  const thinking = body.thinking;
-  const webSearch = body.webSearch || false; // Define webSearch variable
+  const metaOpts = body.metaOpts;
 
   const webmodel = "gpt-4.1";
   const thinkingmodel = "o4-mini";
@@ -55,7 +55,7 @@ export async function POST(req: Request) {
     user: userId,
   };
 
-  if (thinking) {
+  if (metaOpts === THINKING) {
     opConfig.model = thinkingmodel;
     opConfig.reasoning = {
       effort: "medium",
@@ -63,7 +63,7 @@ export async function POST(req: Request) {
     };
   }
   // cant call both
-  else if (webSearch) {
+  else if (metaOpts === "webSearch") {
     opConfig.model = webmodel;
     opConfig.tools = [{ type: "web_search_preview" }];
   }

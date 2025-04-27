@@ -23,7 +23,10 @@ export default function Home() {
   const [messages, setMessages] = useState<MessagePart[]>([]);
   const messagesRef = useRef<MessagePart[]>([]);
   const [prompt, setPrompt] = useState("");
-  const [thinking, setThinking] = useState(false);
+
+  const [metaOpts, setMetaOpts] = useState<null | "thinking" | "webSearch">(
+    "thinking"
+  );
 
   const handleClick = async () => {
     messagesRef.current = [];
@@ -31,7 +34,7 @@ export default function Home() {
 
     const response = await fetch(`/api/${model}`, {
       method: "POST",
-      body: JSON.stringify({ prompt, thinking }),
+      body: JSON.stringify({ prompt, metaOpts }),
     });
 
     const reader = response.body?.getReader();
@@ -150,16 +153,42 @@ export default function Home() {
               </button>
             </div>
 
-            <button
-              className={`px-4 py-1 rounded-lg border ${
-                thinking
-                  ? "bg-blue-600 text-white"
-                  : "bg-white text-gray-700 hover:bg-gray-100"
-              }`}
-              onClick={() => setThinking(!thinking)}
-            >
-              {thinking ? "Thinking Enabled" : "Enable Thinking"}
-            </button>
+            <div className="flex items-center border rounded-lg p-1 bg-gray-50">
+              <button
+                className={`px-3 py-1 rounded ${
+                  metaOpts === null ? "bg-blue-600 text-white" : "bg-gray-200"
+                }`}
+                onClick={() => {
+                  setMetaOpts(null);
+                }}
+              >
+                None
+              </button>
+              <button
+                className={`px-3 py-1 rounded ${
+                  metaOpts === "webSearch"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200"
+                }`}
+                onClick={() => {
+                  setMetaOpts("webSearch");
+                }}
+              >
+                Web Search
+              </button>
+              <button
+                className={`px-3 py-1 rounded ${
+                  metaOpts === "thinking"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200"
+                }`}
+                onClick={() => {
+                  setMetaOpts("thinking");
+                }}
+              >
+                Thinking
+              </button>
+            </div>
           </div>
         </div>
 

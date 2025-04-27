@@ -11,7 +11,7 @@ export async function POST(request: Request) {
     const body = await request.json();
 
     const prompt = body.prompt;
-    const thinking = body.thinking;
+    const metaOpts = body.metaOpts;
 
     const config = {
       model: "claude-3-7-sonnet-20250219",
@@ -20,7 +20,7 @@ export async function POST(request: Request) {
       stream: true,
     } as Anthropic.MessageCreateParamsStreaming;
 
-    if (thinking) {
+    if (metaOpts === THINKING) {
       config.thinking = {
         type: "enabled",
         budget_tokens: 1600,
@@ -47,7 +47,10 @@ export async function POST(request: Request) {
           currentType = type;
         };
 
-        for await (const chunk of response) {
+        for await (const chunk of response as unknown as AsyncIterable<{
+          type: string;
+          delta?: { thinking?: string; text?: string };
+        }>) {
           updateSequence(chunk.type);
           console.log("[chunk]", chunk);
           currentContent += chunk?.delta?.thinking || chunk?.delta?.text || "";
