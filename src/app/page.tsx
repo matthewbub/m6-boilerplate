@@ -1,7 +1,4 @@
 "use client";
-
-import Header from "@/components/header";
-import Footer from "@/components/footer";
 import { useState, useRef } from "react";
 
 interface ChunkSequence {
@@ -108,113 +105,114 @@ export default function Home() {
   };
 
   return (
-    <div>
-      <Header />
+    <div className="h-full flex flex-col items-center justify-center p-8 max-w-2xl mx-auto">
+      <h1 className="text-3xl font-bold mb-6">AI Reasoning Demo</h1>
 
-      <div className="h-full flex flex-col items-center justify-center p-8 max-w-2xl mx-auto">
-        <h1 className="text-3xl font-bold mb-6">AI Reasoning Demo</h1>
+      <div className="w-full mb-6">
+        <div className="flex flex-col md:flex-row gap-3 mb-4">
+          <input
+            type="text"
+            placeholder="Enter your question here..."
+            className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+            value={prompt}
+            onChange={(e) => setPrompt(e.target.value)}
+          />
+          <button
+            className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+            onClick={handleClick}
+          >
+            Ask AI
+          </button>
+        </div>
 
-        <div className="w-full mb-6">
-          <div className="flex flex-col md:flex-row gap-3 mb-4">
-            <input
-              type="text"
-              placeholder="Enter your question here..."
-              className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
-              value={prompt}
-              onChange={(e) => setPrompt(e.target.value)}
-            />
+        <div className="flex flex-wrap gap-3 mb-4">
+          <div className="flex items-center border rounded-lg p-1 bg-gray-50">
             <button
-              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
-              onClick={handleClick}
+              className={`px-3 py-1 rounded ${
+                model === "openai" ? "bg-blue-600 text-white" : "bg-gray-200"
+              }`}
+              onClick={() => setModel("openai")}
             >
-              Ask AI
+              OpenAI
+            </button>
+            <button
+              className={`px-3 py-1 rounded ${
+                model === "anthropic" ? "bg-blue-600 text-white" : "bg-gray-200"
+              }`}
+              onClick={() => setModel("anthropic")}
+            >
+              Anthropic
             </button>
           </div>
 
-          <div className="flex flex-wrap gap-3 mb-4">
-            <div className="flex items-center border rounded-lg p-1 bg-gray-50">
-              <button
-                className={`px-3 py-1 rounded ${
-                  model === "openai" ? "bg-blue-600 text-white" : "bg-gray-200"
-                }`}
-                onClick={() => setModel("openai")}
-              >
-                OpenAI
-              </button>
-              <button
-                className={`px-3 py-1 rounded ${
-                  model === "anthropic"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-200"
-                }`}
-                onClick={() => setModel("anthropic")}
-              >
-                Anthropic
-              </button>
-            </div>
-
-            <div className="flex items-center border rounded-lg p-1 bg-gray-50">
-              <button
-                className={`px-3 py-1 rounded ${
-                  metaOpts === null ? "bg-blue-600 text-white" : "bg-gray-200"
-                }`}
-                onClick={() => {
-                  setMetaOpts(null);
-                }}
-              >
-                None
-              </button>
-              <button
-                className={`px-3 py-1 rounded ${
-                  metaOpts === "webSearch"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-200"
-                }`}
-                onClick={() => {
-                  setMetaOpts("webSearch");
-                }}
-              >
-                Web Search
-              </button>
-              <button
-                className={`px-3 py-1 rounded ${
-                  metaOpts === "thinking"
-                    ? "bg-blue-600 text-white"
-                    : "bg-gray-200"
-                }`}
-                onClick={() => {
-                  setMetaOpts("thinking");
-                }}
-              >
-                Thinking
-              </button>
-            </div>
+          <div className="flex items-center border rounded-lg p-1 bg-gray-50">
+            <button
+              className={`px-3 py-1 rounded ${
+                metaOpts === null ? "bg-blue-600 text-white" : "bg-gray-200"
+              }`}
+              onClick={() => {
+                setMetaOpts(null);
+              }}
+            >
+              None
+            </button>
+            <button
+              className={`px-3 py-1 rounded ${
+                metaOpts === "webSearch"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200"
+              }`}
+              onClick={() => {
+                setMetaOpts("webSearch");
+              }}
+            >
+              Web Search
+            </button>
+            <button
+              className={`px-3 py-1 rounded ${
+                metaOpts === "thinking"
+                  ? "bg-blue-600 text-white"
+                  : "bg-gray-200"
+              }`}
+              onClick={() => {
+                setMetaOpts("thinking");
+              }}
+            >
+              Thinking
+            </button>
           </div>
         </div>
-
-        <div className="w-full space-y-4 p-4 rounded-lg border max-h-[500px] overflow-y-auto">
-          {messages.length === 0 ? (
-            <div className="text-center text-gray-500 py-8">
-              Ask a question to see AI responses here
-            </div>
-          ) : (
-            messages.map((message, index) => (
-              <div
-                key={index}
-                className="flex flex-col gap-2 border rounded-lg p-3"
-              >
-                <span className="text-xs bg-gray-100 text-gray-600 font-mono px-2 py-1 rounded w-fit">
-                  {message.type}
-                </span>
-                <div className="text-foreground whitespace-pre-wrap">
-                  {message.content}
-                </div>
-              </div>
-            ))
-          )}
-        </div>
       </div>
-      <Footer />
+
+      <Messages messages={messages} />
+    </div>
+  );
+}
+
+function Messages({ messages }: { messages: MessagePart[] }) {
+  return (
+    <div className="w-full space-y-4 p-4 rounded-lg border max-h-[500px] overflow-y-auto">
+      {messages.length === 0 ? (
+        <div className="text-center text-gray-500 py-8">
+          Ask a question to see AI responses here
+        </div>
+      ) : (
+        messages.map((message, index) => (
+          <div
+            key={index}
+            className="flex flex-col gap-2 border rounded-lg p-3"
+          >
+            <span className="text-xs bg-gray-100 text-gray-600 font-mono px-2 py-1 rounded w-fit">
+              {message.type}
+            </span>
+            {message.content && (
+              <div className="text-foreground whitespace-pre-wrap">
+                {message.content}
+              </div>
+            )}
+          </div>
+        ))
+      )}
     </div>
   );
 }
