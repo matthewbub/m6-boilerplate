@@ -23,6 +23,7 @@ export default function Home() {
   const [messages, setMessages] = useState<MessagePart[]>([]);
   const messagesRef = useRef<MessagePart[]>([]);
   const [prompt, setPrompt] = useState("");
+  const [thinking, setThinking] = useState(false);
 
   const handleClick = async () => {
     messagesRef.current = [];
@@ -30,7 +31,7 @@ export default function Home() {
 
     const response = await fetch(`/api/${model}`, {
       method: "POST",
-      body: JSON.stringify({ prompt }),
+      body: JSON.stringify({ prompt, thinking }),
     });
 
     const reader = response.body?.getReader();
@@ -42,8 +43,6 @@ export default function Home() {
     while (true) {
       const { done, value } = await reader.read();
       if (done) {
-        // Process any remaining buffer content after stream ends (optional, usually not needed for SSE)
-        // console.log("Stream finished. Remaining buffer:", buffer);
         break;
       }
 
@@ -112,48 +111,78 @@ export default function Home() {
       <div className="h-full flex flex-col items-center justify-center p-8 max-w-2xl mx-auto">
         <h1 className="text-3xl font-bold mb-6">AI Reasoning Demo</h1>
 
-        <div className="flex flex-row gap-4">
-          <input
-            type="text"
-            className="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 transition-colors mb-8"
-            value={prompt}
-            onChange={(e) => setPrompt(e.target.value)}
-          />
-          <button
-            className="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 transition-colors mb-8"
-            onClick={handleClick}
-          >
-            Ask AI
-          </button>
-        </div>
-
-        <div className="flex flex-row gap-4">
-          <button
-            className="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 transition-colors mb-8"
-            onClick={() => setModel("openai")}
-          >
-            OpenAI
-          </button>
-          <button
-            className="px-4 py-2 bg-blue-500 text-white hover:bg-blue-600 transition-colors mb-8"
-            onClick={() => setModel("anthropic")}
-          >
-            Anthropic
-          </button>
-        </div>
-
-        <div className="w-full space-y-4">
-          {messages.map((message, index) => (
-            <div
-              key={index}
-              className="flex flex-col gap-2 border border-border"
+        <div className="w-full mb-6">
+          <div className="flex flex-col md:flex-row gap-3 mb-4">
+            <input
+              type="text"
+              placeholder="Enter your question here..."
+              className="flex-1 px-4 py-2 border rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+              value={prompt}
+              onChange={(e) => setPrompt(e.target.value)}
+            />
+            <button
+              className="px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors font-medium"
+              onClick={handleClick}
             >
-              <span className="text-xs text-muted-foreground font-mono">
-                {message.type}
-              </span>
-              <div className="text-foreground text-xs">{message.content}</div>
+              Ask AI
+            </button>
+          </div>
+
+          <div className="flex flex-wrap gap-3 mb-4">
+            <div className="flex items-center border rounded-lg p-1 bg-gray-50">
+              <button
+                className={`px-3 py-1 rounded ${
+                  model === "openai" ? "bg-blue-600 text-white" : "bg-gray-200"
+                }`}
+                onClick={() => setModel("openai")}
+              >
+                OpenAI
+              </button>
+              <button
+                className={`px-3 py-1 rounded ${
+                  model === "anthropic"
+                    ? "bg-blue-600 text-white"
+                    : "bg-gray-200"
+                }`}
+                onClick={() => setModel("anthropic")}
+              >
+                Anthropic
+              </button>
             </div>
-          ))}
+
+            <button
+              className={`px-4 py-1 rounded-lg border ${
+                thinking
+                  ? "bg-blue-600 text-white"
+                  : "bg-white text-gray-700 hover:bg-gray-100"
+              }`}
+              onClick={() => setThinking(!thinking)}
+            >
+              {thinking ? "Thinking Enabled" : "Enable Thinking"}
+            </button>
+          </div>
+        </div>
+
+        <div className="w-full space-y-4 p-4 rounded-lg border max-h-[500px] overflow-y-auto">
+          {messages.length === 0 ? (
+            <div className="text-center text-gray-500 py-8">
+              Ask a question to see AI responses here
+            </div>
+          ) : (
+            messages.map((message, index) => (
+              <div
+                key={index}
+                className="flex flex-col gap-2 border rounded-lg p-3"
+              >
+                <span className="text-xs bg-gray-100 text-gray-600 font-mono px-2 py-1 rounded w-fit">
+                  {message.type}
+                </span>
+                <div className="text-foreground whitespace-pre-wrap">
+                  {message.content}
+                </div>
+              </div>
+            ))
+          )}
         </div>
       </div>
       <Footer />
