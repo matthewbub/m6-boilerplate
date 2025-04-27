@@ -11,17 +11,23 @@ export async function POST(request: Request) {
     const body = await request.json();
 
     const prompt = body.prompt;
+    const thinking = body.thinking;
 
-    const response = await anthropic.messages.create({
+    const config = {
       model: "claude-3-7-sonnet-20250219",
       max_tokens: 2000,
       messages: [{ role: "user", content: prompt }],
       stream: true,
-      thinking: {
+    } as Anthropic.MessageCreateParamsStreaming;
+
+    if (thinking) {
+      config.thinking = {
         type: "enabled",
         budget_tokens: 1600,
-      },
-    });
+      };
+    }
+
+    const response = await anthropic.messages.create(config);
 
     // Create a readable stream
     const stream = new ReadableStream({
